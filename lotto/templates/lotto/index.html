@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Lotto System</title>
+</head>
+<body>
+
+    <h1>로또 구매 시스템</h1>
+    <hr>
+
+    {% if user.is_authenticated %}
+        <p>로그인 사용자: <strong>{{ user.username }}</strong> 님</p>
+        <h2>현재 회차: {{ current_round.round_number }}회차</h2>
+        <p>추첨일: {{ current_round.draw_date }}</p>
+        <p>
+            당첨번호: 
+            {% if current_round.is_drawn %}
+                {{ current_round.num1 }} {{ current_round.num2 }} {{ current_round.num3 }} 
+                {{ current_round.num4 }} {{ current_round.num5 }} {{ current_round.num6 }} 
+                (보너스: {{ current_round.bonus_num }})
+            {% else %}
+                추첨 전
+            {% endif %}
+        </p>
+
+        <form action="{% url 'purchase_lotto' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" name="buy_auto">자동 구매</button>
+        </form>
+
+        <br>
+
+        <form action="{% url 'purchase_lotto' %}" method="POST">
+            {% csrf_token %}
+            <input type="number" name="num1" min="1" max="45" required>
+            <input type="number" name="num2" min="1" max="45" required>
+            <input type="number" name="num3" min="1" max="45" required>
+            <input type="number" name="num4" min="1" max="45" required>
+            <input type="number" name="num5" min="1" max="45" required>
+            <input type="number" name="num6" min="1" max="45" required>
+            <button type="submit" name="buy_manual">수동 구매</button>
+        </form>
+
+        <hr>
+
+        <h2>구매 내역 목록</h2>
+        <table border="1" cellpadding="5" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>회차</th>
+                    <th>당첨 번호</th>
+                    <th>구매 번호</th>
+                    <th>구분</th>
+                    <th>결과 (등수)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in user_tickets %}
+                    <tr>
+                        <td>{{ ticket.lotto_round.round_number }}회</td>
+                        <td>
+                            {% if ticket.lotto_round.is_drawn %}
+                                {{ ticket.lotto_round.num1 }} {{ ticket.lotto_round.num2 }} {{ ticket.lotto_round.num3 }} 
+                                {{ ticket.lotto_round.num4 }} {{ ticket.lotto_round.num5 }} {{ ticket.lotto_round.num6 }}
+                            {% else %}
+                                미추첨
+                            {% endif %}
+                        </td>
+                        <td>{{ ticket.n1 }} {{ ticket.n2 }} {{ ticket.n3 }} {{ ticket.n4 }} {{ ticket.n5 }} {{ ticket.n6 }}</td>
+                        <td>{{ ticket.selection_type }}</td>
+                        <td>
+                            {% if ticket.rank == -1 %}미추첨
+                            {% elif ticket.rank == 0 %}낙첨
+                            {% else %}{{ ticket.rank }}등
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% else %}
+        <p>서비스를 이용하려면 로그인이 필요합니다.</p>
+        <p><a href="/accounts/login/">여기를 클릭하여 로그인 페이지로 이동</a></p>
+    {% endif %}
+
+</body>
+</html>

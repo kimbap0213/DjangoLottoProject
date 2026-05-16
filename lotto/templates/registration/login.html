@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+
+    <h2>일반 사용자 로그인</h2>
+    <hr>
+
+    {% if form.errors %}
+        <p style="color: red;">아이디 또는 비밀번호가 틀렸습니다.</p>
+    {% endif %}
+
+    <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">로그인</button>
+    </form>
+
+</body>
+</html>
